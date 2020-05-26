@@ -48,16 +48,6 @@ subprojects {
                 includeModule("net.runelite.gluegen", "gluegen-rt")
             }
         }
-        exclusiveContent {
-            forRepository {
-                maven {
-                    url = uri("https://raw.githubusercontent.com/open-osrs/hosting/master")
-                }
-            }
-            filter {
-                includeModule("com.openosrs.rxrelay3", "rxrelay")
-            }
-        }
 
         exclusiveContent {
             forRepository {
@@ -179,6 +169,11 @@ subprojects {
                     }
                 }
             }
+        }
+
+        register<Copy>("copyDeps") {
+            into("./build/deps/")
+            from(configurations["runtimeClasspath"])
         }
     }
 }
