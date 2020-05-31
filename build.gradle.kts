@@ -8,7 +8,7 @@ plugins {
     checkstyle
     java
     id("com.github.ben-manes.versions") version "0.28.0"
-    id("se.patrikerdes.use-latest-versions") version "0.2.13"
+    id("se.patrikerdes.use-latest-versions") version "0.2.14"
     id("com.simonharrer.modernizer") version "1.8.0-1" apply false
 }
 
@@ -94,6 +94,7 @@ subprojects {
 
         testImplementation(group = "org.pf4j", name = "pf4j", version = "3.3.1")
         testImplementation(group = "com.google.inject.extensions", name = "guice-testlib", version = "4.2.3")
+        testImplementation(group = "com.google.code.gson", name = "gson", version = "2.8.6")
         testImplementation(group = "net.sf.jopt-simple", name = "jopt-simple", version = "5.0.4")
         testImplementation(group = "junit", name = "junit", version = "4.13")
         testImplementation(group = "org.mockito", name = "mockito-core", version = "3.3.3")
