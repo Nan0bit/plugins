@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Owain van Brakel <https://github.com/Owain94>
+ * Copyright (c) 2020, Zach <https://github.com/zacharydwaller>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,43 +22,28 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.client.plugins.menuentryswapper;
+package net.runelite.client.plugins.menuentryswapper.util;
 
-import com.google.common.base.Splitter;
-import java.util.Map;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-public class CustomSwapParse
+@Getter
+@RequiredArgsConstructor
+public enum DepositMode
 {
-	public static boolean parse(String value)
+	DEPOSIT_1("Deposit-1"),
+	DEPOSIT_5("Deposit-5"),
+	DEPOSIT_10("Deposit-10"),
+	DEPOSIT_X("Deposit-X"),
+	DEPOSIT_ALL("Deposit-All"),
+	EXTRA_OP("Eat/Wield/Etc."),
+	OFF("Off");
+
+	private final String name;
+
+	@Override
+	public String toString()
 	{
-		try
-		{
-			final StringBuilder sb = new StringBuilder();
-
-			for (String str : value.split("\n"))
-			{
-				if (!str.startsWith("//"))
-				{
-					sb.append(str).append("\n");
-				}
-			}
-
-			final Splitter NEWLINE_SPLITTER = Splitter
-				.on("\n")
-				.omitEmptyStrings()
-				.trimResults();
-
-			final Map<String, String> tmp = NEWLINE_SPLITTER.withKeyValueSeparator(':').split(sb);
-
-			for (String str : tmp.values())
-			{
-				Integer.parseInt(str.trim());
-			}
-			return true;
-		}
-		catch (Exception ex)
-		{
-			return false;
-		}
+		return name;
 	}
 }

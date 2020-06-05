@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Owain van Brakel <https://github.com/Owain94>
+ * Copyright (c) 2020, Zach <https://github.com/zacharydwaller>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,22 +22,28 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package net.runelite.client.plugins.menuentryswapper.util;
 
-version = "0.0.5"
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-project.extra["PluginName"] = "Login Screen"
-project.extra["PluginDescription"] = "Provides various enhancements for login screen"
+@Getter
+@RequiredArgsConstructor
+public enum WithdrawMode
+{
+	WITHDRAW_1("Withdraw-1"),
+	WITHDRAW_5("Withdraw-5"),
+	WITHDRAW_10("Withdraw-10"),
+	WITHDRAW_X("Withdraw-X"),
+	WITHDRAW_ALL("Withdraw-All"),
+	WITHDRAW_ALL_BUT_1("Withdraw-All-But-1"),
+	OFF("Off");
 
-tasks {
-    jar {
-        manifest {
-            attributes(mapOf(
-                    "Plugin-Version" to project.version,
-                    "Plugin-Id" to nameToId(project.extra["PluginName"] as String),
-                    "Plugin-Provider" to project.extra["PluginProvider"],
-                    "Plugin-Description" to project.extra["PluginDescription"],
-                    "Plugin-License" to project.extra["PluginLicense"]
-            ))
-        }
-    }
+	private final String name;
+
+	@Override
+	public String toString()
+	{
+		return name;
+	}
 }

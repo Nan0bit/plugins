@@ -136,8 +136,8 @@ public class MenuEntrySwapperPlugin extends Plugin
 	);
 	private static final List<String> dropOre = Arrays.asList(
 		"Copper ore", "Tin ore", "Limestone", "Blurite ore", "Iron ore", "Elemental ore", "Daeyalt ore",
-		"Silver ore", "Coal", "Sandstone", "Gold ore", "Granite", "Mithril ore", "Lovakite ore",
-		"Adamantite ore", "Runite ore", "Amethyst ore"
+		"Silver ore", "Coal", "Sandstone", "Gold ore", "Granite (500g)", "Granite (2kg)", "Granite (5kg)",
+		"Mithril ore", "Lovakite ore", "Adamantite ore", "Runite ore", "Amethyst ore"
 	);
 	private static final List<String> dropLogs = Arrays.asList(
 		"Logs", "Achey tree logs", "Oak logs", "Willow logs", "Teak logs", "Juniper logs", "Maple logs",
@@ -540,7 +540,6 @@ public class MenuEntrySwapperPlugin extends Plugin
 			client.setMenuEntries(menuEntries);
 		}
 
-
 		if (config.swapImps() && target.contains("impling"))
 		{
 
@@ -821,16 +820,16 @@ public class MenuEntrySwapperPlugin extends Plugin
 
 		if (config.swapTravel())
 		{
-			menuManager.addPriorityEntry("Travel");
-			menuManager.addPriorityEntry("Pay-fare");
-			menuManager.addPriorityEntry("Charter");
-			menuManager.addPriorityEntry("Take-boat");
-			menuManager.addPriorityEntry("Fly");
-			menuManager.addPriorityEntry("Jatizso");
-			menuManager.addPriorityEntry("Neitiznot");
-			menuManager.addPriorityEntry("Rellekka");
+			menuManager.addPriorityEntry("Travel").setPriority(10);
+			menuManager.addPriorityEntry("Pay-fare").setPriority(10);
+			menuManager.addPriorityEntry("Charter").setPriority(10);
+			menuManager.addPriorityEntry("Take-boat").setPriority(10);
+			menuManager.addPriorityEntry("Fly").setPriority(10);
+			menuManager.addPriorityEntry("Jatizso").setPriority(10);
+			menuManager.addPriorityEntry("Neitiznot").setPriority(10);
+			menuManager.addPriorityEntry("Rellekka").setPriority(10);
 			menuManager.addPriorityEntry("Follow", "Elkoy").setPriority(10);
-			menuManager.addPriorityEntry("Transport");
+			menuManager.addPriorityEntry("Transport").setPriority(10);
 		}
 
 		if (config.swapAbyssTeleport())
@@ -1042,17 +1041,9 @@ public class MenuEntrySwapperPlugin extends Plugin
 				break;
 		}
 
-		switch (config.swapHomePortalMode())
+		if (config.swapHomePortal())
 		{
-			case HOME:
-				menuManager.addPriorityEntry("Home");
-				break;
-			case BUILD_MODE:
-				menuManager.addPriorityEntry("Build mode");
-				break;
-			case FRIENDS_HOUSE:
-				menuManager.addPriorityEntry("Friend's house");
-				break;
+			menuManager.addPriorityEntry(config.swapHomePortalMode().toString(), "Portal").setPriority(10);
 		}
 
 		if (config.swapHardWoodGrove())
@@ -1072,7 +1063,7 @@ public class MenuEntrySwapperPlugin extends Plugin
 
 		if (config.swapHouseAd())
 		{
-			menuManager.addPriorityEntry(config.swapHouseAdMode().getEntry());
+			menuManager.addPriorityEntry(config.swapHouseAdMode().toString(), "House Advertisement");
 		}
 
 		if (config.getSwapGrimyHerb())
@@ -1129,6 +1120,29 @@ public class MenuEntrySwapperPlugin extends Plugin
 			{
 				menuManager.addSwap("Use", dropLogs, "Drop");
 			}
+		}
+		
+		switch (config.swapGEItemCollect())
+		{
+			case ITEMS:
+				menuManager.addPriorityEntry(new BankComparableEntry("collect-items", "", false));
+				menuManager.addPriorityEntry(new BankComparableEntry("collect-item", "", false));
+				break;
+			case NOTES:
+				menuManager.addPriorityEntry(new BankComparableEntry("collect-notes", "", false));
+				menuManager.addPriorityEntry(new BankComparableEntry("collect-note", "", false));
+				break;
+			case BANK:
+				menuManager.addPriorityEntry(new BankComparableEntry("collect to bank", "", false));
+				menuManager.addPriorityEntry(new BankComparableEntry("bank", "", false));
+				break;
+			case DEFAULT:
+				menuManager.removePriorityEntry(new BankComparableEntry("collect to bank", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("bank", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("collect-notes", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("collect-note", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("collect-items", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("collect-item", "", false));
 		}
 	}
 
@@ -1246,7 +1260,6 @@ public class MenuEntrySwapperPlugin extends Plugin
 		menuManager.removePriorityEntry(config.constructionCapeMode().toString(), "Construct. cape(t)");
 		menuManager.removePriorityEntry(config.maxMode().toString(), "max cape");
 		menuManager.removePriorityEntry(config.questCapeMode().toString(), "quest point cape");
-		menuManager.removePriorityEntry(config.swapHouseAdMode().getEntry());
 		menuManager.removeSwap("Bury", "bone", "Use");
 		menuManager.removeSwap("Wield", "salamander", "Release");
 		menuManager.removeSwap("Wield", "Swamp lizard", "Release");
@@ -1255,6 +1268,8 @@ public class MenuEntrySwapperPlugin extends Plugin
 		menuManager.removePriorityEntry(EMPTY_MEDIUM);
 		menuManager.removePriorityEntry(EMPTY_LARGE);
 		menuManager.removePriorityEntry(EMPTY_GIANT);
+		menuManager.removePriorityEntry(config.swapHomePortalMode().toString(), "Portal");
+		menuManager.removePriorityEntry(config.swapHouseAdMode().toString(), "House Advertisement");
 		for (String jewellerybox : jewelleryBox)
 		{
 			menuManager.removePriorityEntry(jewellerybox, "basic jewellery box");
@@ -1335,18 +1350,28 @@ public class MenuEntrySwapperPlugin extends Plugin
 				menuManager.removePriorityEntry("Teleport to destination", "Obelisk");
 				break;
 		}
-
-		switch (config.swapHomePortalMode())
+		
+		switch (config.swapGEItemCollect())
 		{
-			case HOME:
-				menuManager.removePriorityEntry("Home");
+			case ITEMS:
+				menuManager.removePriorityEntry(new BankComparableEntry("collect-items", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("collect-item", "", false));
 				break;
-			case BUILD_MODE:
-				menuManager.removePriorityEntry("Build mode");
+			case NOTES:
+				menuManager.removePriorityEntry(new BankComparableEntry("collect-notes", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("collect-note", "", false));
 				break;
-			case FRIENDS_HOUSE:
-				menuManager.removePriorityEntry("Friend's house");
+			case BANK:
+				menuManager.removePriorityEntry(new BankComparableEntry("collect to bank", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("bank", "", false));
 				break;
+			case DEFAULT:
+				menuManager.removePriorityEntry(new BankComparableEntry("collect to bank", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("bank", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("collect-notes", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("collect-note", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("collect-items", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("collect-item", "", false));
 		}
 
 	}
@@ -1376,30 +1401,6 @@ public class MenuEntrySwapperPlugin extends Plugin
 	{
 		loadCustomSwaps(config.shiftCustomSwaps(), customShiftSwaps);
 
-		if (config.bankWieldItem())
-		{
-			menuManager.addPriorityEntry(new BankComparableEntry("wield", "", false));
-		}
-		if (config.bankWearItem())
-		{
-			menuManager.addPriorityEntry(new BankComparableEntry("wear", "", false));
-		}
-		if (config.bankEatItem())
-		{
-			menuManager.addPriorityEntry(new BankComparableEntry("eat", "", false));
-		}
-		if (config.bankDrinkItem())
-		{
-			menuManager.addPriorityEntry(new BankComparableEntry("drink", "", false));
-		}
-		if (config.bankEquipItem())
-		{
-			menuManager.addPriorityEntry(new BankComparableEntry("equip", "", false));
-		}
-		if (config.bankInvigorateItem())
-		{
-			menuManager.addPriorityEntry(new BankComparableEntry("invigorate", "", false));
-		}
 		if (config.swapClimbUpDown())
 		{
 			menuManager.addPriorityEntry("climb-up").setPriority(100);
@@ -1412,6 +1413,80 @@ public class MenuEntrySwapperPlugin extends Plugin
 				menuManager.addPriorityEntry(npccontact, "npc contact");
 			}
 		}
+		
+		if (config.swapGEAbort())
+		{
+			menuManager.addPriorityEntry("Abort offer");
+		}
+		
+		switch (config.bankDepositShiftClick())
+		{
+			case DEPOSIT_1:
+				menuManager.addPriorityEntry(new BankComparableEntry("Deposit-1", "", false));
+				break;
+			case DEPOSIT_5:
+				menuManager.addPriorityEntry(new BankComparableEntry("Deposit-5", "", false));
+				break;
+			case DEPOSIT_10:
+				menuManager.addPriorityEntry(new BankComparableEntry("Deposit-10", "", false));
+				break;
+			case DEPOSIT_X:
+				menuManager.addPriorityEntry(new BankComparableEntry("Deposit-X", "", false));
+				break;
+			case DEPOSIT_ALL:
+				menuManager.addPriorityEntry(new BankComparableEntry("Deposit-All", "", false));
+				break;
+			case EXTRA_OP:
+				menuManager.addPriorityEntry(new BankComparableEntry("wield", "", false));
+				menuManager.addPriorityEntry(new BankComparableEntry("wear", "", false));
+				menuManager.addPriorityEntry(new BankComparableEntry("eat", "", false));
+				menuManager.addPriorityEntry(new BankComparableEntry("drink", "", false));
+				menuManager.addPriorityEntry(new BankComparableEntry("equip", "", false));
+				menuManager.addPriorityEntry(new BankComparableEntry("invigorate", "", false));
+				break;
+			case OFF:
+				menuManager.removePriorityEntry(new BankComparableEntry("wield", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("wear", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("eat", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("drink", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("equip", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("invigorate", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("Deposit-All", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("Deposit-1", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("Deposit-5", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("Deposit-10", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("Deposit-X", "", false));
+				break;
+		}
+		switch (config.bankWithdrawShiftClick())
+		{
+			case WITHDRAW_1:
+				menuManager.addPriorityEntry(new BankComparableEntry("Withdraw-1", "", false));
+				break;
+			case WITHDRAW_5:
+				menuManager.addPriorityEntry(new BankComparableEntry("Withdraw-5", "", false));
+				break;
+			case WITHDRAW_10:
+				menuManager.addPriorityEntry(new BankComparableEntry("Withdraw-10", "", false));
+				break;
+			case WITHDRAW_X:
+				menuManager.addPriorityEntry(new BankComparableEntry("Withdraw-X", "", false));
+				break;
+			case WITHDRAW_ALL:
+				menuManager.addPriorityEntry(new BankComparableEntry("Withdraw-All", "", false));
+				break;
+			case WITHDRAW_ALL_BUT_1:
+				menuManager.addPriorityEntry(new BankComparableEntry("Withdraw-All-But-1", "", false));
+				break;
+			case OFF:
+				menuManager.removePriorityEntry(new BankComparableEntry("Withdraw-1", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("Withdraw-5", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("Withdraw-10", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("Withdraw-X", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("Withdraw-All", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("Withdraw-All-But-1", "", false));
+				break;
+		}
 
 		eventBus.unregister(HOTKEY);
 	}
@@ -1423,30 +1498,6 @@ public class MenuEntrySwapperPlugin extends Plugin
 
 	private void removeHotkey(ClientTick event)
 	{
-		if (config.bankWieldItem())
-		{
-			menuManager.removePriorityEntry(new BankComparableEntry("wield", "", false));
-		}
-		if (config.bankWearItem())
-		{
-			menuManager.removePriorityEntry(new BankComparableEntry("wear", "", false));
-		}
-		if (config.bankEatItem())
-		{
-			menuManager.removePriorityEntry(new BankComparableEntry("eat", "", false));
-		}
-		if (config.bankDrinkItem())
-		{
-			menuManager.removePriorityEntry(new BankComparableEntry("drink", "", false));
-		}
-		if (config.bankEquipItem())
-		{
-			menuManager.removePriorityEntry(new BankComparableEntry("equip", "", false));
-		}
-		if (config.bankInvigorateItem())
-		{
-			menuManager.removePriorityEntry(new BankComparableEntry("invigorate", "", false));
-		}
 		if (config.swapClimbUpDown())
 		{
 			menuManager.removePriorityEntry("climb-up");
@@ -1458,6 +1509,80 @@ public class MenuEntrySwapperPlugin extends Plugin
 			{
 				menuManager.removePriorityEntry(npccontact, "npc contact");
 			}
+		}
+		
+				if (config.swapGEAbort())
+		{
+			menuManager.removePriorityEntry("Abort offer");
+		}
+		
+		switch (config.bankDepositShiftClick())
+		{
+			case DEPOSIT_1:
+				menuManager.removePriorityEntry(new BankComparableEntry("Deposit-1", "", false));
+				break;
+			case DEPOSIT_5:
+				menuManager.removePriorityEntry(new BankComparableEntry("Deposit-5", "", false));
+				break;
+			case DEPOSIT_10:
+				menuManager.removePriorityEntry(new BankComparableEntry("Deposit-10", "", false));
+				break;
+			case DEPOSIT_X:
+				menuManager.removePriorityEntry(new BankComparableEntry("Deposit-X", "", false));
+				break;
+			case DEPOSIT_ALL:
+				menuManager.removePriorityEntry(new BankComparableEntry("Deposit-All", "", false));
+				break;
+			case EXTRA_OP:
+				menuManager.removePriorityEntry(new BankComparableEntry("wield", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("wear", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("eat", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("drink", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("equip", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("invigorate", "", false));
+				break;
+			case OFF:
+				menuManager.removePriorityEntry(new BankComparableEntry("wield", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("wear", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("eat", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("drink", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("equip", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("invigorate", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("Deposit-All", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("Deposit-1", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("Deposit-5", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("Deposit-10", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("Deposit-X", "", false));
+				break;
+		}
+		switch (config.bankWithdrawShiftClick())
+		{
+			case WITHDRAW_1:
+				menuManager.removePriorityEntry(new BankComparableEntry("Withdraw-1", "", false));
+				break;
+			case WITHDRAW_5:
+				menuManager.removePriorityEntry(new BankComparableEntry("Withdraw-5", "", false));
+				break;
+			case WITHDRAW_10:
+				menuManager.removePriorityEntry(new BankComparableEntry("Withdraw-10", "", false));
+				break;
+			case WITHDRAW_X:
+				menuManager.removePriorityEntry(new BankComparableEntry("Withdraw-X", "", false));
+				break;
+			case WITHDRAW_ALL:
+				menuManager.removePriorityEntry(new BankComparableEntry("Withdraw-All", "", false));
+				break;
+			case WITHDRAW_ALL_BUT_1:
+				menuManager.removePriorityEntry(new BankComparableEntry("Withdraw-All-But-1", "", false));
+				break;
+			case OFF:
+				menuManager.removePriorityEntry(new BankComparableEntry("Withdraw-1", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("Withdraw-5", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("Withdraw-10", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("Withdraw-X", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("Withdraw-All", "", false));
+				menuManager.removePriorityEntry(new BankComparableEntry("Withdraw-All-But-1", "", false));
+				break;
 		}
 
 		loadCustomSwaps("", customShiftSwaps);
@@ -1582,7 +1707,7 @@ public class MenuEntrySwapperPlugin extends Plugin
 	private void updateBuySellEntries()
 	{
 		List<String> tmp;
-
+	
 		if (config.getSwapBuyOne())
 		{
 			tmp = Text.fromCSV(config.getBuyOneItems());
@@ -1712,7 +1837,7 @@ public class MenuEntrySwapperPlugin extends Plugin
 	{
 		List<String> tmp;
 
-		if (config.getWithdrawOne())
+		if (config.getWithdrawOne() && !hotkeyActive)
 		{
 			tmp = Text.fromCSV(config.getWithdrawOneItems());
 			withdrawEntries[0] = new AbstractComparableEntry[tmp.size()];
@@ -1724,7 +1849,7 @@ public class MenuEntrySwapperPlugin extends Plugin
 			withdrawEntries[0] = null;
 		}
 
-		if (config.getWithdrawFive())
+		if (config.getWithdrawFive() && !hotkeyActive)
 		{
 			tmp = Text.fromCSV(config.getWithdrawFiveItems());
 			withdrawEntries[1] = new AbstractComparableEntry[tmp.size()];
@@ -1736,7 +1861,7 @@ public class MenuEntrySwapperPlugin extends Plugin
 			withdrawEntries[1] = null;
 		}
 
-		if (config.getWithdrawTen())
+		if (config.getWithdrawTen() && !hotkeyActive)
 		{
 			tmp = Text.fromCSV(config.getWithdrawTenItems());
 			withdrawEntries[2] = new AbstractComparableEntry[tmp.size()];
@@ -1748,7 +1873,7 @@ public class MenuEntrySwapperPlugin extends Plugin
 			withdrawEntries[2] = null;
 		}
 
-		if (config.getWithdrawX())
+		if (config.getWithdrawX() && !hotkeyActive)
 		{
 			tmp = Text.fromCSV(config.getWithdrawXItems());
 			withdrawEntries[3] = new AbstractComparableEntry[tmp.size()];
@@ -1760,7 +1885,7 @@ public class MenuEntrySwapperPlugin extends Plugin
 			withdrawEntries[3] = null;
 		}
 
-		if (config.getWithdrawAll())
+		if (config.getWithdrawAll() && !hotkeyActive)
 		{
 			tmp = Text.fromCSV(config.getWithdrawAllItems());
 			withdrawEntries[4] = new AbstractComparableEntry[tmp.size()];
