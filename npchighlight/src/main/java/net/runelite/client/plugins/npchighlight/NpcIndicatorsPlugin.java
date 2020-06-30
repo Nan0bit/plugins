@@ -27,6 +27,7 @@ package net.runelite.client.plugins.npchighlight;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Provides;
+import java.awt.Color;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.Instant;
@@ -42,17 +43,16 @@ import java.util.Set;
 import javax.inject.Inject;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
 import net.runelite.api.GraphicID;
 import net.runelite.api.GraphicsObject;
+import net.runelite.api.KeyCode;
 import net.runelite.api.MenuOpcode;
 import static net.runelite.api.MenuOpcode.MENU_ACTION_DEPRIORITIZE_OFFSET;
 import net.runelite.api.NPC;
 import net.runelite.api.coords.WorldPoint;
-import net.runelite.api.events.FocusChanged;
 import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.GraphicsObjectCreated;
@@ -67,7 +67,6 @@ import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
-import net.runelite.client.input.KeyManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins.PluginType;
@@ -128,16 +127,7 @@ public class NpcIndicatorsPlugin extends Plugin
 	private NpcMinimapOverlay npcMinimapOverlay;
 
 	@Inject
-	private NpcIndicatorsInput inputListener;
-
-	@Inject
-	private KeyManager keyManager;
-
-	@Inject
 	private ClientThread clientThread;
-
-	@Setter(AccessLevel.PACKAGE)
-	private boolean hotKeyPressed = false;
 
 	@Inject
 	private Notifier notifier;
@@ -222,7 +212,6 @@ public class NpcIndicatorsPlugin extends Plugin
 	{
 		overlayManager.add(npcSceneOverlay);
 		overlayManager.add(npcMinimapOverlay);
-		keyManager.registerKeyListener(inputListener);
 		highlights = getHighlights();
 		clientThread.invoke(() ->
 		{
@@ -244,7 +233,6 @@ public class NpcIndicatorsPlugin extends Plugin
 		teleportGraphicsObjectSpawnedThisTick.clear();
 		npcTags.clear();
 		highlightedNpcs.clear();
-		keyManager.unregisterKeyListener(inputListener);
 	}
 
 	@Subscribe
@@ -263,7 +251,7 @@ public class NpcIndicatorsPlugin extends Plugin
 	}
 
 	@Subscribe
-	private void onConfigChanged(ConfigChanged configChanged)
+	void onConfigChanged(ConfigChanged configChanged)
 	{
 		if (!configChanged.getGroup().equals("npcindicators"))
 		{
@@ -275,16 +263,7 @@ public class NpcIndicatorsPlugin extends Plugin
 	}
 
 	@Subscribe
-	private void onFocusChanged(FocusChanged focusChanged)
-	{
-		if (!focusChanged.isFocused())
-		{
-			hotKeyPressed = false;
-		}
-	}
-
-	@Subscribe
-	private void onMenuEntryAdded(MenuEntryAdded event)
+	void onMenuEntryAdded(MenuEntryAdded event)
 	{
 		int type = event.getOpcode();
 
@@ -293,16 +272,31 @@ public class NpcIndicatorsPlugin extends Plugin
 			type -= MENU_ACTION_DEPRIORITIZE_OFFSET;
 		}
 
-		if (config.highlightMenuNames() &&
-			NPC_MENU_ACTIONS.contains(MenuOpcode.of(type)) &&
-			highlightedNpcs.stream().anyMatch(npc -> npc.getIndex() == event.getIdentifier() &&
-				(!npc.isDead() || config.highlightDeadNpcs())))
+		final MenuOpcode menuOpcode = MenuOpcode.of(type);
+
+		if (NPC_MENU_ACTIONS.contains(menuOpcode))
 		{
-			final String target = ColorUtil.prependColorTag(Text.removeTags(event.getTarget()), config.getHighlightColor());
-			event.setTarget(target);
-			event.setModified();
+			NPC npc = client.getCachedNPCs()[event.getIdentifier()];
+
+			Color color = null;
+			if (npc.isDead())
+			{
+				color = config.deadNpcMenuColor();
+			}
+
+			if (color == null && highlightedNpcs.contains(npc) && config.highlightMenuNames() && (!npc.isDead() || !config.ignoreDeadNpcs()))
+			{
+				color = config.getHighlightColor();
+			}
+
+			if (color != null)
+			{
+				final String target = ColorUtil.prependColorTag(Text.removeTags(event.getTarget()), color);
+				event.setTarget(target);
+				event.setModified();
+			}
 		}
-		else if (hotKeyPressed && type == MenuOpcode.EXAMINE_NPC.getId())
+		else if (type == MenuOpcode.EXAMINE_NPC.getId() && client.isKeyPressed(KeyCode.KC_SHIFT))
 		{
 			// Add tag option
 			client.insertMenuItem(
@@ -355,7 +349,7 @@ public class NpcIndicatorsPlugin extends Plugin
 	}
 
 	@Subscribe
-	private void onNpcSpawned(NpcSpawned npcSpawned)
+	void onNpcSpawned(NpcSpawned npcSpawned)
 	{
 		NPC npc = npcSpawned.getNpc();
 		highlightNpcIfMatch(npc);

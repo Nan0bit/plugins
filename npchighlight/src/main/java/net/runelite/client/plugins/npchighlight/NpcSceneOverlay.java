@@ -139,7 +139,7 @@ public class NpcSceneOverlay extends Overlay
 	{
 		NPCDefinition npcDefinition = actor.getTransformedDefinition();
 		if (npcDefinition == null || !npcDefinition.isInteractible()
-			|| (actor.isDead() && !config.highlightDeadNpcs()))
+			|| (actor.isDead() && config.ignoreDeadNpcs()))
 		{
 			return;
 		}
@@ -199,8 +199,11 @@ public class NpcSceneOverlay extends Overlay
 			}
 			case HULL:
 				final Shape objectClickbox = actor.getConvexHull();
-				graphics.setColor(color);
-				graphics.draw(objectClickbox);
+				if (objectClickbox != null)
+				{
+					graphics.setColor(color);
+					graphics.draw(objectClickbox);
+				}
 				break;
 			case THIN_OUTLINE:
 				modelOutliner.drawOutline(actor, 1, color);
