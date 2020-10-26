@@ -32,6 +32,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.*;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -215,6 +216,7 @@ enum Task
 	SKELETAL_WYVERNS("Skeletal wyverns", ItemID.SKELETAL_WYVERN),
 	SKELETONS("Skeletons", ItemID.SKELETON_GUARD),
 	SMOKE_DEVILS("Smoke devils", ItemID.SMOKE_DEVIL),
+	SOURHOGS("Sourhogs", ItemID.SOURHOG_FOOT),
 	SPIDERS("Spiders", ItemID.HUGE_SPIDER,
 		singletonList("Venenatis"), emptyList()),
 	SPIRITUAL_CREATURES("Spiritual creatures", ItemID.DRAGON_BOOTS,
@@ -413,6 +415,6 @@ enum Task
 	@Nullable
 	static Task getTask(String taskName)
 	{
-		return tasks.get(taskName.toLowerCase());
+		return Optional.ofNullable(tasks.get(taskName.toLowerCase())).orElse(null);
 	}
 }
